@@ -100,6 +100,7 @@ class AIDLActivity : AppCompatActivity(), View.OnClickListener {
                 Log.i("WWE", "Client transfer { $book } to server by In and Out")
             }
             R.id.btnGetBooks -> {
+                tvDisplayBooks.text = ""
                 tvDisplayBooks.text = StringBuilder().apply {
                     bookManager.books.forEach { book ->
                         append(book.toString()).append("\n")
