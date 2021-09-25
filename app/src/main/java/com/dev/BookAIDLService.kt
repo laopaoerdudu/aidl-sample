@@ -23,13 +23,12 @@ class BookAIDLService : Service() {
         override fun addBookByIn(book: Book?): Book {
             synchronized(this) {
                 return book?.also { _book ->
-                    Log.e("WWE", "Server received { $book } from client by tag in")
+                    Log.e("WWE", "BookAIDLService #addBookByIn { $book }")
                     if (!bookList.contains(_book)) {
                         bookList.add(_book.apply {
-                            price = 100
+                            price = 20
                         })
                     }
-                    Log.e("WWE", "Server get books are $bookList by tag in")
                 } ?: Book()
             }
         }
@@ -38,28 +37,26 @@ class BookAIDLService : Service() {
         override fun addBookByOut(book: Book?): Book {
             synchronized(this) {
                 return book?.also { _book ->
-                    Log.e("WWE", "Server received { $book } from client by tag out")
+                    Log.e("WWE", "BookAIDLService #addBookByOut { $book }")
                     if (!bookList.contains(_book)) {
                         bookList.add(_book.apply {
                             price = 200
                         })
                     }
-                    Log.e("WWE", "Server get books are $bookList by tag out")
                 } ?: Book()
             }
         }
 
         @Throws(RemoteException::class)
-        override fun addBookByInout(book: Book?): Book {
+        override fun addBookByInAndOut(book: Book?): Book {
             synchronized(this) {
                 return book?.also { _book ->
-                    Log.e("WWE", "Server received { $book } from client by tag in and out")
+                    Log.e("WWE", "BookAIDLService #addBookByInAndOut { $book }")
                     if (!bookList.contains(_book)) {
                         bookList.add(_book.apply {
-                            price = 300
+                            price = 2000
                         })
                     }
-                    Log.e("WWE", "Server get books are $bookList by tag in and out")
                 } ?: Book()
             }
         }
@@ -67,23 +64,23 @@ class BookAIDLService : Service() {
 
     override fun onCreate() {
         super.onCreate()
-        Log.e("WWE", "BookAIDLService #onCreate")
+        Log.e("WWE", "BookAIDLService #onCreate invoke!")
         bookList.apply {
             add(Book().apply {
-                name = "蜗居"
-                price = 5
+                name = "蛤蟆功"
+                price = 10000
             })
         }
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        Log.e("WWE", "BookAIDLService #onStartCommand")
+        Log.e("WWE", "BookAIDLService #onStartCommand invoke!")
         return super.onStartCommand(intent, flags, startId)
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        Log.e("WWE", "BookAIDLService #onDestroy")
+        Log.e("WWE", "BookAIDLService #onDestroy invoke!")
     }
 
     override fun onBind(intent: Intent?): IBinder? {
