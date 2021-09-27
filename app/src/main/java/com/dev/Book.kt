@@ -12,6 +12,7 @@ class Book() : Parcelable {
         this.price = parcel.readInt()
     }
 
+    // 默认生成的模板类的对象只支持为 in 的定向 tag 。
     override fun writeToParcel(parcel: Parcel, flags: Int) {
         parcel.writeString(name)
         parcel.writeInt(price)
@@ -25,6 +26,7 @@ class Book() : Parcelable {
         return "Book( name = $name, price = $price )"
     }
 
+    // 如果要支持为 out 或者 inout 的定向 tag 的话，还需要自己定义 readFromParcel() 方法
     fun readFromParcel(parcel: Parcel) {
         name = parcel.readString()
         price = parcel.readInt()

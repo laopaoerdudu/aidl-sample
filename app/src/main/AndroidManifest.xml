@@ -17,7 +17,8 @@
             </intent-filter>
         </activity>
 
-        <service android:name=".BookAIDLService">
+        <service android:name=".BookAIDLService"
+            android:exported="true">
             <intent-filter>
                 <action android:name="com.dev.BookAIDLService" />
                 <category android:name="android.intent.category.DEFAULT" />
