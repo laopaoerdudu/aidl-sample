@@ -28,7 +28,7 @@ class AIDLActivity : AppCompatActivity(), View.OnClickListener {
         override fun onServiceConnected(p0: ComponentName?, binder: IBinder?) {
             isConnected = true
 
-            // 如果是同一进程，那么就返回 Stub 对象本身 (obj.queryLocalInterface(DESCRIPTOR))
+            // 如果是同一进程，那么就返回 Stub 对象本身 ( obj.queryLocalInterface(DESCRIPTOR) )
             // 否则如果是跨进程则返回 Stub 的代理内部类 Proxy
             bookManager = BookManager.Stub.asInterface(binder)
             Log.i("WWE", "Client #onServiceConnected get bookList -> ${bookManager.books}")
