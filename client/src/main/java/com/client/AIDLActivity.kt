@@ -31,7 +31,6 @@ class AIDLActivity : AppCompatActivity(), View.OnClickListener {
             // 如果是同一进程，那么就返回 Stub 对象本身 ( obj.queryLocalInterface(DESCRIPTOR) )
             // 否则如果是跨进程则返回 Stub 的代理内部类 Proxy
             bookManager = BookManager.Stub.asInterface(binder)
-            Log.i("WWE", "Client #onServiceConnected get bookList -> ${bookManager.books}")
         }
 
         override fun onServiceDisconnected(p0: ComponentName?) {
@@ -69,35 +68,29 @@ class AIDLActivity : AppCompatActivity(), View.OnClickListener {
 
     override fun onClick(view: View?) {
         if (!isConnected) {
-            bindService()
             Toast.makeText(this, "当前与服务端处于未连接状态，请稍后再试", Toast.LENGTH_SHORT).show()
+            bindService()
             return
         }
 
         when (view?.id) {
             R.id.btnAddBookByIn -> {
-                val book = Book().apply {
+                bookManager.addBookByIn(Book().apply {
                     name = "九阴真经 add By in"
                     price = 10
-                }
-                bookManager.addBookByIn(book)
-                Log.i("WWE", "Client transfer { $book } to server by In")
+                })
             }
             R.id.btnAddBookByOut -> {
-                val book = Book().apply {
+                bookManager.addBookByOut(Book().apply {
                     name = "祥龙18掌 add By out"
                     price = 100
-                }
-                bookManager.addBookByOut(book)
-                Log.i("WWE", "Client transfer { $book } to server by Out")
+                })
             }
             R.id.btnAddBookByInAndOut -> {
-                val book = Book().apply {
+                bookManager?.addBookByInAndOut(Book().apply {
                     name = "打狗棒 add By in and out"
                     price = 1000
-                }
-                bookManager?.addBookByInAndOut(book)
-                Log.i("WWE", "Client transfer { $book } to server by In and Out")
+                })
             }
             R.id.btnGetBooks -> {
                 tvDisplayBooks.text = StringBuilder().apply {
