@@ -22,6 +22,13 @@ class AIDLActivity : AppCompatActivity(), View.OnClickListener {
     private lateinit var bookManager: BookManager
     private lateinit var tvDisplayBooks: TextView
 
+    private val deathRecipient = object : IBinder.DeathRecipient {
+        override fun binderDied() {
+            // 注销监听和回收资源
+            bookManager.asBinder().unlinkToDeath(this, 0)
+        }
+    }
+
     private val aidlConnection = object : ServiceConnection {
 
         @Throws(RemoteException::class)
@@ -31,6 +38,12 @@ class AIDLActivity : AppCompatActivity(), View.OnClickListener {
             // 如果是同一进程，那么就返回 Stub 对象本身 ( obj.queryLocalInterface(DESCRIPTOR) )
             // 否则如果是跨进程则返回 Stub 的代理内部类 Proxy
             bookManager = BookManager.Stub.asInterface(binder)
+
+            try {
+                binder?.linkToDeath(deathRecipient, 0)
+            } catch (ex: RemoteException) {
+                ex.printStackTrace()
+            }
         }
 
         override fun onServiceDisconnected(p0: ComponentName?) {
