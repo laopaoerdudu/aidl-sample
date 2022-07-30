@@ -9,6 +9,10 @@ import kotlin.jvm.Throws
 
 class BookAIDLService : Service() {
     private val bookList = mutableListOf<Book>()
+
+    /**
+     * 接收客户端传过来的 Book 对象，并对其进行修改，然后把修改后的对象再传回去。
+     */
     private val bookBinder = object : BookManager.Stub() {
 
         @Throws(RemoteException::class)
@@ -84,6 +88,7 @@ class BookAIDLService : Service() {
     }
 
     override fun onBind(intent: Intent?): IBinder? {
+        // 将 bookBinder 回传给客户端
         return bookBinder
     }
 }
