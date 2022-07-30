@@ -64,6 +64,16 @@ class BookAIDLService : Service() {
                 } ?: Book()
             }
         }
+
+        @Throws(RemoteException::class)
+        override fun registerListener(listener: IBookUpdateListener) {
+
+        }
+
+        @Throws(RemoteException::class)
+        override fun unregisterListener(listener: IBookUpdateListener) {
+
+        }
     }
 
     override fun onCreate() {
