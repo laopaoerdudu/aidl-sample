@@ -88,6 +88,7 @@ class AIDLActivity : AppCompatActivity(), View.OnClickListener {
 
         when (view?.id) {
             R.id.btnAddBookByIn -> {
+                // 调用服务端的 `addBookByIn` 方法
                 bookManager.addBookByIn(Book().apply {
                     name = "九阴真经 add By in"
                     price = 10
