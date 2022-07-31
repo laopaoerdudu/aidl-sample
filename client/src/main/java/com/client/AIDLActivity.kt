@@ -3,9 +3,7 @@ package com.client
 import android.content.ComponentName
 import android.content.Intent
 import android.content.ServiceConnection
-import android.os.Bundle
-import android.os.IBinder
-import android.os.RemoteException
+import android.os.*
 import android.util.Log
 import android.view.View
 import android.widget.Button
@@ -14,6 +12,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.dev.Book
 import com.dev.BookManager
+import com.dev.IBookUpdateListener
 import java.lang.StringBuilder
 import kotlin.jvm.Throws
 
@@ -21,6 +20,22 @@ class AIDLActivity : AppCompatActivity(), View.OnClickListener {
     private var isConnected = false
     private lateinit var bookManager: BookManager
     private lateinit var tvDisplayBooks: TextView
+
+    private val bookUpdateListener = object : IBookUpdateListener.Stub() {
+        override fun onBookUpdate(book: Book?) {
+            mHandler.obtainMessage(100, book).sendToTarget()
+        }
+    }
+
+    private val mHandler = object : Handler(Looper.getMainLooper()) {
+        override fun handleMessage(messgae: Message) {
+            when(messgae.what) {
+                100 -> {
+                    Log.i("WWE", "AIDLActivity -> handleMessage -> messgae.obj -> ${messgae.obj}")
+                }
+            }
+        }
+    }
 
     private val deathRecipient = object : IBinder.DeathRecipient {
         override fun binderDied() {
