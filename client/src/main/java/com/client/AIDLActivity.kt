@@ -13,6 +13,10 @@ import androidx.appcompat.app.AppCompatActivity
 import com.dev.Book
 import com.dev.BookManager
 import com.dev.IBookUpdateListener
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.lang.StringBuilder
 import kotlin.jvm.Throws
 
@@ -29,9 +33,12 @@ class AIDLActivity : AppCompatActivity(), View.OnClickListener {
 
     private val mHandler = object : Handler(Looper.getMainLooper()) {
         override fun handleMessage(messgae: Message) {
-            when(messgae.what) {
+            when (messgae.what) {
                 100 -> {
                     Log.i("WWE", "AIDLActivity -> handleMessage -> messgae.obj -> ${messgae.obj}")
+                }
+                else -> {
+                    super.handleMessage(messgae)
                 }
             }
         }
@@ -53,7 +60,8 @@ class AIDLActivity : AppCompatActivity(), View.OnClickListener {
             // 如果是同一进程，那么就返回 Stub 对象本身 ( obj.queryLocalInterface(DESCRIPTOR) )
             // 否则如果是跨进程则返回 Stub 的代理内部类 Proxy
             bookManager = BookManager.Stub.asInterface(binder)
-
+            bookManager.registerListener(bookUpdateListener)
+            createTask()
             try {
                 binder?.linkToDeath(deathRecipient, 0)
             } catch (ex: RemoteException) {
@@ -128,6 +136,19 @@ class AIDLActivity : AppCompatActivity(), View.OnClickListener {
                     }
                 }.toString()
             }
+        }
+    }
+
+    private fun createTask() = GlobalScope.launch(Dispatchers.Main) {
+        withContext(Dispatchers.IO) {
+            try {
+                bookManager.books
+            } catch (ex: RemoteException) {
+                ex.printStackTrace()
+            }
+        }.run {
+            this as? List<Book>
+            Log.i("WWE", "AIDLActivity -> handleTask() -> ${Thread.currentThread().name}")
         }
     }
 }

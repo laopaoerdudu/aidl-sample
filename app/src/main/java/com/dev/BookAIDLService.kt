@@ -30,7 +30,7 @@ class BookAIDLService : Service() {
         }
     }
 
-    private var isCancel = false
+    private var isCanceled = false
     private var count = 0
 
     /**
@@ -110,7 +110,7 @@ class BookAIDLService : Service() {
         }
 
         Thread {
-            while (!isCancel) {
+            while (!isCanceled) {
                 try {
                     Thread.sleep(5000)
                 } catch (ex: InterruptedException) {
@@ -118,9 +118,9 @@ class BookAIDLService : Service() {
                 }
                 count++
                 if (count == 5) {
-                    isCancel = true
+                    isCanceled = true
                 }
-                mHandler.sendMessage(Message.obtain())
+                mHandler.obtainMessage().sendToTarget()
             }
         }.start()
     }
@@ -131,7 +131,7 @@ class BookAIDLService : Service() {
     }
 
     override fun onDestroy() {
-        isCancel = true
+        isCanceled = true
         super.onDestroy()
         Log.e("WWE", "BookAIDLService #onDestroy invoke!")
     }
