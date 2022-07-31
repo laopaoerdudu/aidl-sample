@@ -2,13 +2,36 @@ package com.dev
 
 import android.app.Service
 import android.content.Intent
-import android.os.IBinder
-import android.os.RemoteException
+import android.content.ServiceConnection
+import android.os.*
 import android.util.Log
-import kotlin.jvm.Throws
 
 class BookAIDLService : Service() {
     private val bookList = mutableListOf<Book>()
+
+    // 它的内部自动实现了线程同步的功能，而且它的本质是一个 ArrayMap
+    private val callbackList = RemoteCallbackList<IBookUpdateListener>()
+
+    // Handler 并不能精准的做定时任务，因为 Handler 在发送和接收的过程中会有时间损耗
+    private val mHandler = object : Handler(Looper.getMainLooper()) {
+        override fun handleMessage(msg: Message) {
+            super.handleMessage(msg)
+            for (i in 0 until callbackList.beginBroadcast()) {
+                try {
+                    callbackList.getBroadcastItem(i).onBookUpdate(Book().apply {
+                        this.name = "Kotlin best practice"
+                        this.price = 78
+                    })
+                } catch (ex: RemoteException) {
+                    ex.printStackTrace()
+                }
+            }
+            callbackList.finishBroadcast()
+        }
+    }
+
+    private var isCanceled = false
+    private var count = 0
 
     /**
      * 接收客户端传过来的 Book 对象，并对其进行修改，然后把修改后的对象再传回去。
@@ -64,6 +87,16 @@ class BookAIDLService : Service() {
                 } ?: Book()
             }
         }
+
+        @Throws(RemoteException::class)
+        override fun registerListener(listener: IBookUpdateListener) {
+            callbackList.register(listener)
+        }
+
+        @Throws(RemoteException::class)
+        override fun unregisterListener(listener: IBookUpdateListener) {
+            callbackList.unregister(listener)
+        }
     }
 
     override fun onCreate() {
@@ -75,6 +108,21 @@ class BookAIDLService : Service() {
                 price = 10000
             })
         }
+
+        Thread {
+            while (!isCanceled) {
+                try {
+                    Thread.sleep(5000)
+                } catch (ex: InterruptedException) {
+                    ex.printStackTrace()
+                }
+                count++
+                if (count == 5) {
+                    isCanceled = true
+                }
+                mHandler.obtainMessage().sendToTarget()
+            }
+        }.start()
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -83,6 +131,7 @@ class BookAIDLService : Service() {
     }
 
     override fun onDestroy() {
+        isCanceled = true
         super.onDestroy()
         Log.e("WWE", "BookAIDLService #onDestroy invoke!")
     }
@@ -90,5 +139,10 @@ class BookAIDLService : Service() {
     override fun onBind(intent: Intent?): IBinder? {
         // 将 bookBinder 回传给客户端
         return bookBinder
+    }
+
+    override fun unbindService(conn: ServiceConnection) {
+        super.unbindService(conn)
+        Log.e("WWE", "BookAIDLService #unbindService invoke!")
     }
 }
