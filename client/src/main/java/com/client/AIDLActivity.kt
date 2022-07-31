@@ -32,13 +32,13 @@ class AIDLActivity : AppCompatActivity(), View.OnClickListener {
     }
 
     private val mHandler = object : Handler(Looper.getMainLooper()) {
-        override fun handleMessage(messgae: Message) {
-            when (messgae.what) {
+        override fun handleMessage(message: Message) {
+            when (message.what) {
                 100 -> {
-                    Log.i("WWE", "AIDLActivity -> handleMessage -> messgae.obj -> ${messgae.obj}")
+                    Log.i("WWE", "AIDLActivity -> handleMessage -> message.obj -> ${message.obj}")
                 }
                 else -> {
-                    super.handleMessage(messgae)
+                    super.handleMessage(message)
                 }
             }
         }
