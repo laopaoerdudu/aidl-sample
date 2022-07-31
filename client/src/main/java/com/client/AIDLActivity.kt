@@ -46,8 +46,14 @@ class AIDLActivity : AppCompatActivity(), View.OnClickListener {
 
     private val deathRecipient = object : IBinder.DeathRecipient {
         override fun binderDied() {
+            try {
+                bookManager.unregisterListener(bookUpdateListener)
+            } catch (ex: RemoteException) {
+                ex.printStackTrace()
+            }
             // 注销监听和回收资源
             bookManager.asBinder().unlinkToDeath(this, 0)
+            bindService()
         }
     }
 
@@ -56,17 +62,16 @@ class AIDLActivity : AppCompatActivity(), View.OnClickListener {
         @Throws(RemoteException::class)
         override fun onServiceConnected(p0: ComponentName?, binder: IBinder?) {
             isConnected = true
-
             // 如果是同一进程，那么就返回 Stub 对象本身 ( obj.queryLocalInterface(DESCRIPTOR) )
             // 否则如果是跨进程则返回 Stub 的代理内部类 Proxy
             bookManager = BookManager.Stub.asInterface(binder)
-            bookManager.registerListener(bookUpdateListener)
-            createTask()
             try {
                 binder?.linkToDeath(deathRecipient, 0)
+                bookManager.registerListener(bookUpdateListener)
             } catch (ex: RemoteException) {
                 ex.printStackTrace()
             }
+            createTask()
         }
 
         override fun onServiceDisconnected(p0: ComponentName?) {
@@ -96,6 +101,11 @@ class AIDLActivity : AppCompatActivity(), View.OnClickListener {
 
     override fun onDestroy() {
         super.onDestroy()
+        try {
+            bookManager.unregisterListener(bookUpdateListener)
+        } catch (ex: RemoteException) {
+            ex.printStackTrace()
+        }
         if (isConnected) {
             isConnected = false
             unbindService(aidlConnection)
